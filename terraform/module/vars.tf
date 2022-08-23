@@ -91,12 +91,18 @@ variable "static_ip" {
 
 }
 
+variable "mask" {
+  type = "string"
+  default = "24"
+}
+
 variable "static_vars" {
   type = map(any)
   default = {
     username       = "${var.username}"
     password       = base64encode(var.password)
     ipaddress      = element(var.static_ips, count.index)
+    mask           = "${var.mask}"
     defaultgateway = "${var.default_gw}"
   }
 }

@@ -17,7 +17,7 @@ write_files:
       ethernets:
         ens160:
           dhcp4: false
-          addresses: [${ipaddress}/16]
+          addresses: [${ipaddress}/${mask}]
           nameservers:
             addresses: 
             - ${nameserver1}

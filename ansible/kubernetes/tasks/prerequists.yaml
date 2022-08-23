@@ -1,4 +1,4 @@
-- name: Install packages
+Mu- name: Install packages
   become: true
   shell: "{{ item }}"
   with_items:
