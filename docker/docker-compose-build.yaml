@@ -1,0 +1,28 @@
+version: "3"
+services: 
+
+###################################################
+###           build python container            ###
+###################################################
+   python:
+     build:
+       context: ./python
+       dockerfile: Dockerfile 
+     image: py_container
+###################################################
+###           build terraform container         ###
+###################################################
+   terraform-container:
+     build:
+       context: ./terraform
+       dockerfile: Dockerfile
+     image: tf_container 
+
+###################################################
+###           build ansible container           ###
+###################################################
+   ansible-container:
+     build:
+       context: ./ansible
+       dockerfile: Dockerfile
+     image: ansible_container 

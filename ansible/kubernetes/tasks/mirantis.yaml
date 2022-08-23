@@ -1,0 +1,31 @@
+- name: get mirantis version
+  shell: curl -s https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest|grep tag_name | cut -d '"' -f 4|sed 's/v//g'
+  register: version
+
+- name: get files 
+  shell: "{{ item }}"
+  become: true
+  with_items:
+  - "wget https://github.com/Mirantis/cri-dockerd/releases/download/v{{ version['stdout'] }}/cri-dockerd-{{ version['stdout'] }}.amd64.tgz"
+  - "tar xvf cri-dockerd-{{ version['stdout'] }}.amd64.tgz"
+  - mv ./cri-dockerd/cri-dockerd /usr/local/bin/
+
+- name: Configure systemd units for cri-dockerd
+  become: true
+  shell: "{{ item }}"
+  with_items:
+  - wget -4 https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service
+  - wget -4 https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket
+  - mv cri-docker.socket cri-docker.service /etc/systemd/system/
+  - sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+
+
+- name: Reload daemon
+  become: true 
+  systemd: 
+    daemon_reload: yes 
+
+- name: Enable Cri-Docker
+  become: true 
+  shell: systemctl enable --now cri-docker.socket
+

@@ -1,0 +1,53 @@
+--- 
+################################################
+#  Ansible Script to configure K8S containerd  #
+
+- name: Configure Kubernetes on Cluster
+  gather_facts: no 
+  hosts: localhost
+  tasks: 
+
+    - name: Wait for configuration to be applied
+      pause:
+        minutes: 1
+
+- name: Install and configure all prerequists and packages
+  gather_facts: no
+  hosts: all
+  tasks: 
+  
+    - name: Set a hostname
+      become: true
+      shell: hostnamectl set-hostname "{{ inventory_hostname }}"
+
+    - include: ./tasks/containerd.yaml
+      when: docker_engine == 'containerd'
+
+    - include: ./tasks/prerequists.yaml 
+      when: docker_engine != 'containerd'
+  
+    - include: ./tasks/mirantis.yaml
+      when: docker_engine != 'containerd'
+
+    - include: ./tasks/services.yaml 
+      when: docker_engine != 'containerd'
+
+    - include: ./tasks/pull_images.yaml
+
+- name: Configure Masters 
+  hosts: masters
+  gather_facts: no 
+  tasks: 
+
+    - include: ./tasks/master_config.yaml 
+
+
+- name: Configure Workers
+  hosts: workers
+  gather_facts: no 
+  tasks: 
+
+    - include: ./tasks/workers_config.yaml 
+
+
+

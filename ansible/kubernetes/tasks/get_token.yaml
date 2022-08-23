@@ -1,0 +1,4 @@
+- name: Print Token
+  shell: kubeadm token create --print-join-command
+  register: join_command
+  become: true

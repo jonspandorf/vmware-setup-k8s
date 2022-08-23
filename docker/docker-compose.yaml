@@ -1,0 +1,62 @@
+version: '3'
+services:
+###################################################
+###               Writes JSON module            ###
+###################################################  
+  python-init:
+    image: py_container
+    command: 'create_module.py'
+    env_file:
+      - ./python/.env
+    volumes:
+      - ./python/create_module.py:/app/create_module.py
+      - ./data/:/data
+
+###################################################
+###         initate terraform process           ###
+###################################################       
+  terraform-init:
+    image: tf_container
+    command: '-chdir=/app init'
+    env_file:
+      - ./python/.env
+    volumes:
+      - ./terraform/cluster:/module
+      - ./data/cluster-${CLUSTER_NUM}/:/app
+    depends_on:
+      python-init:
+        condition: service_completed_successfully
+###################################################
+###         apply Terraform Infrastructure      ###
+###################################################       
+
+  terraform-apply:
+    image: tf_container
+    command: '-chdir=/app apply -auto-approve'
+    env_file:
+      - ./python/.env
+    volumes:
+      - /home/controller/img:/img
+      - ./terraform/cluster:/module
+      - ./data/cluster-${CLUSTER_NUM}/:/app
+    depends_on:
+      terraform-init:
+        condition: service_completed_successfully
+
+
+##################################################
+##           Ansible Installs K8s             ###
+##################################################       
+
+  ansible-k8s:
+    image: ansible_container
+    command: /app/main.yaml -i /data/cluster-${CLUSTER_NUM}/inventory.txt
+    env_file:
+      - ./ansible/.env
+    volumes:
+      - ./ansible/kubernetes:/app
+      - ./data:/data
+    depends_on:
+      terraform-apply:
+        condition: service_completed_successfully
+

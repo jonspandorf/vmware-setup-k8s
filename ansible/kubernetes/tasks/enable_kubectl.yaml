@@ -1,0 +1,7 @@
+- name: Enable kubectl utility
+  shell: "{{ item }}"
+  with_items:
+  - mkdir -p $HOME/.kube 
+  - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config 
+  - sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  - echo "source <(kubectl completion bash)" >> ~/.bashrc

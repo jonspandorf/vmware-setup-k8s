@@ -1,0 +1,9 @@
+[masters]
+%{ for index, ip in masters ~}
+${masters_hostnames[index]} ansible_host=${ip} ansible_user=${user} ansible_password=${password} ansible_connection=ssh
+%{ endfor ~}
+
+[workers]
+%{ for index, ip in workers ~}
+${workers_hostnames[index]} ansible_host=${ip} ansible_user=${user} ansible_password=${password} ansible_connection=ssh
+%{ endfor ~}

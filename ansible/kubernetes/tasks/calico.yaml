@@ -1,0 +1,10 @@
+- name: Configure Calico Firewall
+  shell: "{{ item }}"
+  with_items:
+  - firewall-cmd --add-port=179/tcp --permanent
+  - firewall-cmd --reload
+
+- name: Download Calico manifest 
+  shell: curl https://docs.projectcalico.org/manifests/calico.yaml -O
+
+- name: Replace 

@@ -1,0 +1,11 @@
+
+
+- name: Enable and load services
+  become: true
+  systemd: 
+    enabled: yes 
+    name: "{{ item }}"
+  with_items:
+  - docker 
+  - cri-docker.service
+  - kubelet

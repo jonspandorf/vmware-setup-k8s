@@ -1,0 +1,12 @@
+version: "3"
+services:
+  terraform-destroy:
+    image: tf_container
+    command: '-chdir=/app destroy -auto-approve'
+    env_file:
+      - ./terraform/.env
+    volumes:
+      - /home/controller/img:/img
+      - ./terraform/cluster:/module
+      - ./data/cluster-1/:/app
+      - ./data/:/data

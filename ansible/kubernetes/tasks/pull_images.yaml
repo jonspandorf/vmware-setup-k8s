@@ -1,0 +1,9 @@
+- name: Get config images (mirantis)
+  become: true
+  shell: kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock
+  when: docker_engine == 'mirantis'
+
+- name: Get config images
+  become: true
+  shell: kubeadm config images pull
+  when: docker_engine != 'mirantis'

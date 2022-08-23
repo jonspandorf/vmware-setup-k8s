@@ -1,0 +1,32 @@
+--- 
+- name: Reset all cluster
+  hosts: masters  
+  gather_facts: no
+  with_vars:
+    nodes: "{{ groups['workers'] }}"
+
+  tasks:
+    - name: Drain all worker nodes
+      k8s_drain:
+        name: "{{ item }}"
+        state: drain
+        force: yes
+      with_items: "{{ nodes }}"
+
+    - name: Mark nodes as schedualable
+      k8s_drain:
+        state: uncordon 
+        name: "{{ item }}"
+      with_items: "{{nodes }}"
+
+    - name: reset worker
+      become: true 
+      shell: kubeadm reset "{{ item }}" -f --cri-socket=unix:///var/run/cri-dockerd.sock
+      with_items: "{{ nodes }}"
+
+    - include: ./tasks/get_token.yaml
+
+- name: Join workers 
+  hosts: workers
+  tasks: 
+    - include: ./tasks/workers_config.yaml

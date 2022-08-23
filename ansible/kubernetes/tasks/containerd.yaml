@@ -1,0 +1,92 @@
+- name: Create conainerd config file
+  become: true
+  file: 
+    path: "/etc/modules-load.d/containerd.conf"
+    state: "touch"
+
+- name: Add configuration to file 
+  become: true
+  blockinfile:
+    path: "/etc/modules-load.d/containerd.conf"
+    block: |
+          overlay
+          br_netfilter
+
+- name: modprobe 
+  become: true
+  shell: |
+        modprobe overlay
+        modprobe br_netfilter
+
+- name: set system configs for Kubernetes networking
+  become: true
+  file: 
+    path: "/etc/sysctl.d/99-kubernetes-cri.conf"
+    state: touch
+
+- name: Add conf for containerd
+  become: true
+  blockinfile:
+    path: "/etc/sysctl.d/99-kubernetes-cri.conf"
+    block: |
+          net.bridge.bridge-nf-call-iptables = 1
+          net.ipv4.ip_forward = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+
+- name: Apply new settings
+  become: true
+  command: sysctl --system
+
+- name: install containerd
+  become: true
+  shell: "{{ item }}"
+  with_items:
+  - mkdir -p /etc/containerd
+  - apt install containerd -y
+
+
+- name: copy config file
+  become: true
+  copy:
+    src: ./config.toml
+    dest: /etc/containerd/config.toml
+    owner: root
+    group: root
+
+- name: restart containerd
+  become: true
+  systemd: 
+    state: restarted
+    name: containerd
+  ignore_errors: true
+
+- name: disable swap
+  become: true
+  shell: |
+          swapoff -a
+          sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+- name: install and configure dependencies
+  shell: |
+          sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+          curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+- name: Create kubernetes repo file
+  become: true
+  file:
+    path: "/etc/apt/sources.list.d/kubernetes.list"
+    state: "touch"
+
+- name: Add K8s Source
+  become: true
+  blockinfile:
+    path: "/etc/apt/sources.list.d/kubernetes.list"
+    block: |
+          deb https://apt.kubernetes.io/ kubernetes-xenial main
+
+- name: install kubernetes
+  shell: "{{ item }}"
+  with_items:
+  - sudo apt-get update
+  - "sudo apt-get install -y kubelet={{ kube_ver }} kubeadm={{ kube_ver }} kubectl={{ kube_ver }}"
+  - "sudo apt-mark hold kubelet={{ kube_ver }} kubeadm={{ kube_ver }} kubectl={{ kube_ver }}"

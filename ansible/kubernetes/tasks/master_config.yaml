@@ -1,0 +1,40 @@
+- name: Initalize Kubelet
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket=unix:///var/run/cri-dockerd.sock
+  become: true
+  when: docker_engine == 'mirantis'
+
+- name: Initalize Kubelet
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16 
+  become: true
+  when: docker_engine != 'mirantis'
+
+- name: Enable kubectl utility
+  shell: "{{ item }}"
+  with_items:
+  - mkdir -p $HOME/.kube 
+  - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config 
+  - sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  - echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+- name: install Pod network - Calico
+  shell: "{{ item }}"
+  args:
+    chdir: $HOME
+  with_items:
+  - kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml 
+  - kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+  when: network_plugin == 'calico'
+
+
+- name: Install Pod network - weave-net
+  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  when: network_plugin == 'weavenet'
+
+- name: Install Pod Network - flannel
+  shell: kubectl apply -f "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+  when: network_plugin == 'flannel'
+
+- include: ./tasks/install_helm.yaml
+
+- include: ./tasks/get_token.yaml
+

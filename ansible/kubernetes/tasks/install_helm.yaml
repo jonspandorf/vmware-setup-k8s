@@ -1,0 +1,24 @@
+- name: Install curl and wget
+  become: true
+  apt:
+    pkg:
+    - curl
+    - wget
+
+
+- name: Get helm key
+  shell: curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+
+- name: Make file executable
+  file: 
+    path: ./get_helm.sh
+    mode: 777
+
+- name: Execute helm script
+  become: true 
+  shell: ./get_helm.sh 
+
+- name: Remove file
+  file:
+    path: ./get_helm.sh
+    state: absent 

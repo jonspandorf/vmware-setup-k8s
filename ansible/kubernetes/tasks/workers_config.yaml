@@ -1,0 +1,4 @@
+   - name: Render Command in workers 
+     shell: "{{ hostvars['master-1']['join_command']['stdout'] }}"
+     become: true
+  

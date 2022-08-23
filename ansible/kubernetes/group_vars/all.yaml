@@ -1,0 +1,5 @@
+kube_ver:  "{{ lookup('env','KUBE_VER') }}"
+docker_engine:  "{{ lookup('env','DOCKER_ENGINE') }}"
+network_plugin: "{{ lookup('env', NETWORK_PLUGIN') }}"
+workspace: "{{ lookup('env', 'WORKSPACE') }}"
+cluster_num: "{{ lookup('env', 'CLUSTER_NUM') }}"
