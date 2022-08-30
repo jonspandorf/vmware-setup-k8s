@@ -1,0 +1,76 @@
+#!/usr/bin/env groovy
+
+pipeline{
+    agent any
+
+    stages{
+        stage("Set all Params"){
+            steps{
+                script {
+                    properties([
+                        parameters([
+                            string(
+                                name: 'vcenter_hostname',
+                            ),
+                            string(
+                                name: 'esxi_hostname',
+                            ),
+                            string(
+                                name: 'vcenter_username',
+                            ),
+                            string(
+                                name: 'vcenter_password'
+                            ),
+                            string(
+                                name: 'vcenter_datacenter'
+                            ),
+                            string(
+                                name: 'vcenter_datastore'
+                            ),
+                            string(
+                                name: 'resource_pool'
+                            ),
+                            string(
+                                name: 'num_of_masters'
+                            ),
+                            string(
+                                name: 'num_of_workers'
+                            ),
+                            booleanParam(
+                                name: 'is_dhcp',
+                                defaultValue: true
+                            )
+                            string(
+                                name: 'first_ip',
+                                description: 'only fill if not dhcp'
+                            )
+                            string(
+                                name: 'vcpu'
+                            )
+                            string(
+                                name: 'ram'
+                            ),
+                            string(
+                                name: 'disk_size'
+                            ),
+                            string(
+                                name: 'total_num_of_clusters'
+                            ),
+                        ])
+                    ])
+                }
+            }
+            
+        }
+        stage("Deploy Clusters") {
+            build_clusters(params.total_num_of_clusters)
+        }
+    }
+}
+
+@NonCPS 
+def build_clusters(total_num_of_clusters) {
+    for (cluster=0; cluster < total_num_of_clusters.size(); cluster++) {
+        sh `docker-compose -f ./docker/docker-compose.yaml up -d &
+    }
+}
