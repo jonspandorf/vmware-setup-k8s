@@ -2,32 +2,42 @@
 
 pipeline{
     agent any
-
     parameters {
-        choice(name: 'CHOICE_PARAM', choices: ['ONE','TWO'], description: '')
-        string(name: 'STRING_PARAM', defaultValue: 'ME', description: 'desc')
-        booleanParam(defaultValue: true, name: 'Bool')
+        string(name:'vcenter_hostname', defaultValue:'',description:'Hostname or IP of vCenter Server')
+        string(name:'vcenter_username', defaultValue:'',description:'vcenter user')
+        password(name: 'vcenter_passwd', description: 'Password to vcenter')
+        string(name:'num_of_clusters', defaultValue:'2', description: 'Number of kubernetes clusters to deploy')
+        string(name:'num_of_masters', defaultValue:'1', description:'Number of Master nodes per cluster. Not configured as HA')
+        string(name:'num_of_workers',defaultValue:'1',description:'Number of worker nodes in cluster')
+        choice(name:'vcpu', choices:['2','4','8'], description: 'vcpu per node')
+        choice(name:'ram', choices:['2','4','8','16','32']. description: 'ram in gb')
+        choice(name: 'disk_size', choices:['20','30','60','100','256'], description: 'disk size in gb')
+        booleanParam(name:'is_dhcp', default: true, description: 'Is guest served by dhcp')
+        string(name: 'static_address', description: 'First static IP address of the clusters', defaultValue: '192.168.10.2')
     }
-    
+    environment {
+        CLUSTER_NUM = '1'
+    }
     stages{
+        stage ("Set Environment") {
+            scm checkout
+        }
         stage("Prepare for deploy") {
             steps {
-                sh "echo hello!"
-            }
-        }
-        stage("Deploy Clusters") {
-            // build_clusters(params.total_num_of_clusters)
-            steps {
-                sh "echo deploy"
+                sh "while [ ${CLUSTER_NUM}  -le ${num_of_clusters}] then \
+                do docker-compose -f ./docker/docker-compose.yaml -p deploy_${CLUSTER_NUM} up -d & 
+                CLUSTER_NUM = $((CLUSTER_NUM + 1)); 
+                done
+                "
             }
         }
     }
 }
 
-// @NonCPS 
-// def build_clusters(total_num_of_clusters) {
-//     for (cluster=0; cluster < total_num_of_clusters.size(); cluster++) {
-//         sh `export CLUSTER_NUM=${cluster}`
-//         sh `docker-compose -f ./docker/docker-compose.yaml up -d &
-//     }
-// }
+@NonCPS 
+def build_clusters(total_num_of_clusters) {
+    for (cluster=0; cluster < total_num_of_clusters.size(); cluster++) {
+        sh `export CLUSTER_NUM=${cluster}`
+        sh `docker-compose -f ./docker/docker-compose.yaml up -d &
+    }
+}
