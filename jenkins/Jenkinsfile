@@ -3,33 +3,14 @@
 pipeline{
     agent any
 
-    parameters
+    parameters {
+        choice(name: 'CHOICE_PARAM', choices: ['ONE','TWO'], description: '')
+        string(name: 'STRING_PARAM', defaultValue: 'ME', description: 'desc')
+        booleanParam(defaultValue: true, name: 'Bool')
+    }
     
     stages{
-        stage("Setup Params") {
-            steps {
-                script {
-                    properties([
-                        parameters([
-                            choice(
-                                choices: ['ONE', 'TWO'],
-                                name: 'PARAM1'
-                            ),
-                            booleanParam(
-                                defaultValue: true ,
-                                description:'boolean',
-                                name:'BOOL'
-                            ),
-                            string(
-                                defaultValue: 'stringparam',
-                                name: 'STRING_PARAM',
-                                trim: true
-                            )
-                        ])
-                    ])
-                }
-            }
-        }
+       
         stage("Prepare for deploy") {
             sh "echo hello!"
         }
