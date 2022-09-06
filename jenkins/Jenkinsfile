@@ -10,20 +10,22 @@ pipeline{
             steps {
                 script {
                     properties([
-                        choice(
-                            choices: ['ONE', 'TWO'],
-                            name: 'PARAM1'
-                        ),
-                        booleanParam(
-                            defaultValue: true ,
-                            description:'boolean',
-                            name:'BOOL'
-                        ),
-                        string(
-                            defaultValue: 'stringparam',
-                            name: 'STRING_PARAM',
-                            trim: true
-                        )
+                        parameters([
+                            choice(
+                                choices: ['ONE', 'TWO'],
+                                name: 'PARAM1'
+                            ),
+                            booleanParam(
+                                defaultValue: true ,
+                                description:'boolean',
+                                name:'BOOL'
+                            ),
+                            string(
+                                defaultValue: 'stringparam',
+                                name: 'STRING_PARAM',
+                                trim: true
+                            )
+                        ])
                     ])
                 }
             }
