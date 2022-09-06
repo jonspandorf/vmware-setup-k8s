@@ -24,9 +24,9 @@ pipeline{
         }
         stage("Prepare for deploy") {
             steps {
-                sh "while [ ${CLUSTER_NUM}  -le ${num_of_clusters}] then \
-                do docker-compose -f ./docker/docker-compose.yaml -p deploy_${CLUSTER_NUM} up -d & \
-                CLUSTER_NUM = $((CLUSTER_NUM + 1)); \
+                sh "while [ ${CLUSTER_NUM}  -le ${num_of_clusters} ] then \
+                do docker-compose -f ./docker/docker-compose.yaml -p deploy_"${CLUSTER_NUM}" up -d & \
+                CLUSTER_NUM = "$((CLUSTER_NUM + 1))"; \
                 done"
             }
         }
