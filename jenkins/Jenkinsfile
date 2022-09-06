@@ -3,12 +3,6 @@
 pipeline{
     agent any
 
-    
-    stages{
-        stage("Set all Params"){
-            steps{
-                script {
-                    properties([
                         parameters([
                             string(
                                 name: 'vcenter_hostname',
@@ -58,11 +52,8 @@ pipeline{
                                 name: 'total_num_of_clusters'
                             ),
                         ])
-                    ])
-                }
-            }
-            
-        }
+    
+    stages{
         stage("Prepare for deploy") {
             checkout scm 
         }
