@@ -10,13 +10,16 @@ pipeline{
     }
     
     stages{
-       
         stage("Prepare for deploy") {
-            sh "echo hello!"
+            steps {
+                sh "echo hello!"
+            }
         }
         stage("Deploy Clusters") {
             // build_clusters(params.total_num_of_clusters)
-            sh "echo deploy"
+            steps {
+                sh "echo deploy"
+            }
         }
     }
 }
