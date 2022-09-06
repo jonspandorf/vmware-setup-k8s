@@ -10,7 +10,7 @@ pipeline{
         string(name:'num_of_masters', defaultValue:'1', description:'Number of Master nodes per cluster. Not configured as HA')
         string(name:'num_of_workers',defaultValue:'1',description:'Number of worker nodes in cluster')
         choice(name:'vcpu', choices:['2','4','8'], description: 'vcpu per node')
-        choice(name:'ram', choices:['2','4','8','16','32']. description: 'ram in gb')
+        choice(name:'ram', choices:['2','4','8','16','32'], description: 'ram in gb')
         choice(name: 'disk_size', choices:['20','30','60','100','256'], description: 'disk size in gb')
         booleanParam(name:'is_dhcp', default: true, description: 'Is guest served by dhcp')
         string(name: 'static_address', description: 'First static IP address of the clusters', defaultValue: '192.168.10.2')
