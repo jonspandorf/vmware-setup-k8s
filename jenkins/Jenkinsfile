@@ -33,7 +33,6 @@ pipeline{
 @NonCPS 
 def build_clusters(total_num_of_clusters) {
     for (cluster=0; cluster < total_num_of_clusters.size(); cluster++) {
-        sh `export CLUSTER_NUM=${cluster}`
         sh `docker-compose -f ./docker/docker-compose.yaml up -d &
     }
 }
