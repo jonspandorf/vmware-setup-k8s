@@ -18,7 +18,7 @@ pipeline{
                             defaultValue: true ,
                             description:'boolean',
                             name:'BOOL'
-                        )
+                        ),
                         string(
                             defaultValue: 'stringparam',
                             name: 'STRING_PARAM',
