@@ -3,62 +3,37 @@
 pipeline{
     agent any
 
-                        parameters([
-                            string(
-                                name: 'vcenter_hostname',
-                            ),
-                            string(
-                                name: 'esxi_hostname',
-                            ),
-                            string(
-                                name: 'vcenter_username',
-                            ),
-                            string(
-                                name: 'vcenter_password'
-                            ),
-                            string(
-                                name: 'vcenter_datacenter'
-                            ),
-                            string(
-                                name: 'vcenter_datastore'
-                            ),
-                            string(
-                                name: 'resource_pool'
-                            ),
-                            string(
-                                name: 'num_of_masters'
-                            ),
-                            string(
-                                name: 'num_of_workers'
-                            ),
-                            booleanParam(
-                                name: 'is_dhcp',
-                                defaultValue: true
-                            )
-                            string(
-                                name: 'first_ip',
-                                description: 'only fill if not dhcp'
-                            )
-                            string(
-                                name: 'vcpu'
-                            )
-                            string(
-                                name: 'ram'
-                            ),
-                            string(
-                                name: 'disk_size'
-                            ),
-                            string(
-                                name: 'total_num_of_clusters'
-                            ),
-                        ])
+    parameters
     
     stages{
+        stage("Setup Params") {
+            steps {
+                script {
+                    properties([
+                        choice(
+                            choices: ['ONE', 'TWO'],
+                            name: 'PARAM1'
+                        ),
+                        booleanParam(
+                            defaultValue: true 
+                            description:'boolean'
+                            name:'BOOL'
+                        )
+                        string(
+                            defaultValue: 'stringparam',
+                            name: 'STRING_PARAM'
+                            trim: true
+                        )
+                    ])
+                }
+            }
+        }
         stage("Prepare for deploy") {
-            checkout scm 
+            sh "echo hello!"
         }
         stage("Deploy Clusters") {
-            build_clusters(params.total_num_of_clusters)
+            // build_clusters(params.total_num_of_clusters)
+            sh "echo deploy"
         }
     }
 }
